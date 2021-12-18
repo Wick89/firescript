@@ -3,6 +3,8 @@
 --  by GIMI (+ foregz, Albo1125)  --
 --      License: GNU GPL 3.0      --
 --================================--
+-- for
+Stations = {"els", "sls", "rh"}
 
 --================================--
 --              CHAT              --
@@ -374,15 +376,23 @@ AddEventHandler(
 
 if Config.Dispatch.enabled == true then
 	RegisterNetEvent('fd:dispatch')
-	AddEventHandler(
-		'fd:dispatch',
-		function(coords)
-			local streetName, crossingRoad = GetStreetNameAtCoord(coords.x, coords.y, coords.z)
-			local streetName = GetStreetNameFromHashKey(streetName)
-			local text = ("A fire broke out at %s."):format((crossingRoad > 0) and streetName .. " / " .. GetStreetNameFromHashKey(crossingRoad) or streetName)
-			TriggerServerEvent('fireDispatch:create', text, coords)
+	AddEventHandler('fd:dispatch', function(coords)
+		local streetName, crossingRoad = GetStreetNameAtCoord(coords.x, coords.y, coords.z)
+		local streetName = GetStreetNameFromHashKey(streetName)
+		
+		if Config.Dispatch.playSound == "chat" or Config.Dispatch.playSound == "inferno" then
+			if Config.Dispatch.playSound == "chat" then
+				local text = ("A fire broke out at %s."):format((crossingRoad > 0) and streetName .. " / " .. GetStreetNameFromHashKey(crossingRoad) or streetName)
+				TriggerServerEvent('fireDispatch:create', text, coords)
+			elseif Config.Dispatch.playSound == "inferno" then
+				-- add you own dispatch chat here
+				local text = ("A fire broke out at %s."):format((crossingRoad > 0) and streetName .. " / " .. GetStreetNameFromHashKey(crossingRoad) or streetName)
+				TriggerServerEvent('fireDispatch:create', text, coords)
+				-- SoundFireSiren
+				exports["inferno-fire-ems-pager"]:SoundFireSiren(Stations)
+			end
 		end
-	)
+	end)
 end
 
 RegisterNetEvent('fireClient:createDispatch')
@@ -410,7 +420,7 @@ RegisterNetEvent('QBCore:Client:OnPlayerLoaded', function()
     QBCore.Functions.GetPlayerData(function(PlayerData)
         PlayerJob = PlayerData.job
         if PlayerData.job.onduty then
-            if PlayerData.job.name == Config.Dispatch.enableJob then
+            if PlayerData.job.name == Config.Fire.spawner.firefighterJobs then
                 TriggerServerEvent("QBCore:ToggleDuty")
 				TriggerServerEvent("fire:server:firedispatch", source) -- for firecall 
             end
@@ -419,7 +429,7 @@ RegisterNetEvent('QBCore:Client:OnPlayerLoaded', function()
 end)
 
 RegisterNetEvent('QBCore:Client:OnPlayerUnload', function()
-    if JobInfo.name == Config.Dispatch.enableJob then
+    if JobInfo.name == Config.Fire.spawner.firefighterJobs then
         if PlayerJob.onduty then
             TriggerServerEvent("QBCore:ToggleDuty")
             TriggerServerEvent("fire:server:firedispatch", source) -- for firecall    

@@ -14,8 +14,8 @@ Config.Fire = {
         interval = 1800000, -- Random fire spawn interval (set to nil or false if you don't want to spawn random fires) in ms
         chance = 50, -- Fire spawn chance (out of 100 chances, how many lead to spawning a fire?); Set to values between 1-100
         players = 3, -- Sets the minimum number of players subscribed to dispatch for the spawner to spawn fires.
-        firefighterJobs = { -- If using ESX (Config.Dispatch.enableESX), you can specify which players will count as firefighters in Config.Fire.spawner.players above; If not using ESX you can set this to nil
-            ["fd"] = true -- Always set the job name in the key, value has to be true
+        firefighterJobs = { -- If using ESX or QB (Config.Dispatch.enableESX), you can specify which players will count as firefighters in Config.Fire.spawner.players above; If not using ESX or QB you can set this to nil
+            ["ambulance"] = true -- QB is "ambulance" or ESX job is "fd"
         }
     }
 }
@@ -26,7 +26,6 @@ Config.Dispatch = {
     storeLast = 5, -- The client will store the last five dispatch coordinates for use with /remindme <dispatchNumber>
     clearGpsRadius = 20.0, -- If you don't want to automatically clear the route upon arrival, leave this to false
     removeBlipTimeout = 400000, -- The amount of time in ms after which the dispatch call blip will be automatically removed
-    playSound = true,
-    enableJob = "fire", -- test for QBCore - now work v2
-    Framework = "qb", -- * "qb" (qb-core) * "esx" (ESX) * "none" -- Set to a ESX job / jobs you want to be automatically subscribed to dispatch; Set to nil or false if you don't want to use this
+    playSound = "chat", -- test for new Sound "inferno" or "chat" or "none"
+    Framework = "qb", -- * "qb" (qb-core) * "esx" (ESX) * "none" -- Set to a esx or qb job / jobs you want to be automatically subscribed to dispatch; Set to nil or false if you don't want to use this
 }
