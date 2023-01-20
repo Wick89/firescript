@@ -14,9 +14,11 @@ A FiveM resource enabling whitelisted users to create a (*somewhat*) realistic f
 </details>
 
 # Instalation
-
-1. Extract the contents into folder called `firescript` into your resources folder.
-2. Start the script: **a)** in the `server.cfg` file; **b)** through the console
+1. config in config.lua setup your Framework - firefighterJobs - playSound
+2. is you rename your job go to client/main.lua , go down to line 433 or search ambulance
+3, is you rename your dispatch go to client/main.lua , go down to line 389 or search fd:dispatch, (add you own dispatch chat here)
+3. Extract the contents into folder called `firescript` into your resources folder.
+4. Start the script: **a)** in the `server.cfg` file; **b)** through the console
 
 ## Starting a resource through console
 
