@@ -6,6 +6,8 @@
 
 A FiveM resource enabling whitelisted users to create a (*somewhat*) realistic fires. As far as I am aware, the only fire script compatible with OneSync Infinity / Beyond.
 
+Framework: QB / ESX / OX / VRP
+
 <details>
 <summary>In-game screenshots</summary>
 
@@ -15,16 +17,21 @@ A FiveM resource enabling whitelisted users to create a (*somewhat*) realistic f
 
 # Instalation
 1. config in config.lua setup your Framework - firefighterJobs - playSound
+
 2. is you rename your job go to client/main.lua , go down to line 433 or search ambulance
-3, is you rename your dispatch go to client/main.lua , go down to line 389 or search fd:dispatch, (add you own dispatch chat here)
-3. Extract the contents into folder called `firescript` into your resources folder.
+
+3. is you rename your dispatch go to client/main.lua , go down to line 389 or search fd:dispatch, (add you own dispatch chat here)
+
+4. add your Whitelist
+
+5. Extract the contents into folder called `firescript` into your resources folder.
 
 # Usage & Commands
 
 *Tutorial moved to [the wiki](https://github.com/gimicze/firescript/wiki).*
 
 # Known bugs
-*None! Feel free to open issue when you find any!*
+*some framework dont work for now as OX*
 
 # Credits
 [thanks to Albo1125](https://github.com/Albo1125/FireScript) for make Firescript
