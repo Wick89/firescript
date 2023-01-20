@@ -1,6 +1,7 @@
 --================================--
---       FIRE SCRIPT v1.7.6       --
+--      FIRE SCRIPT v1.7.7        --
 --  by GIMI (+ foregz, Albo1125)  --
+--  make some function by Wick	  --
 --      License: GNU GPL 3.0      --
 --================================--
 
@@ -610,8 +611,8 @@ if Config.Dispatch.Framework == "esx" or Config.Dispatch.Framework == "qb" then
 				end
 			end
 			
-			RegisterServerEvent('fire:server:firedispatch')
-			AddEventHandler('fire:server:firedispatch', function(source)
+			RegisterServerEvent('fire:server:Adddispatch')
+			AddEventHandler('fire:server:Adddispatch', function(source)
 				local src = source
 		
 				for k, v in pairs(QBCore.Functions.GetPlayers()) do
@@ -620,9 +621,23 @@ if Config.Dispatch.Framework == "esx" or Config.Dispatch.Framework == "qb" then
 						if (Config.Fire.spawner.firefighterJobs and Player.PlayerData.job.onduty) then
 							Dispatch:subscribe(v, firefighterJobs)
 							-- Notify here
-						elseif (Config.Fire.spawner.firefighterJobs) then
+							TriggerClientEvent('QBCore:Notify', v, Lang:t("fire_call"), 'success')
+						end
+					end
+				end
+			end)
+
+			RegisterServerEvent('fire:server:Removedispatch')
+			AddEventHandler('fire:server:Removedispatch', function(source)
+				local src = source
+		
+				for k, v in pairs(QBCore.Functions.GetPlayers()) do
+					local Player = QBCore.Functions.GetPlayer(v)
+					if Player ~= nil then 
+						if (Config.Fire.spawner.firefighterJobs) then
 							Dispatch:unsubscribe(v)
 							-- Notify here
+							TriggerClientEvent('QBCore:Notify', v, Lang:t("fire_deactivated"), 'error')
 						end
 					end
 				end

@@ -1,10 +1,10 @@
 --================================--
---       FIRE SCRIPT v1.7.6       --
+--      FIRE SCRIPT v1.7.7        --
 --  by GIMI (+ foregz, Albo1125)  --
+--  make some function by Wick	  --
 --      License: GNU GPL 3.0      --
 --================================--
 Tones = {"fire", "medical"}
-
 
 Dispatch = {
 	lastCall = nil,

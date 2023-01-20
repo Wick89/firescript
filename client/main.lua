@@ -1,6 +1,7 @@
 --================================--
---       FIRE SCRIPT v1.7.6       --
+--      FIRE SCRIPT v1.7.7        --
 --  by GIMI (+ foregz, Albo1125)  --
+--  make some function by Wick	  --
 --      License: GNU GPL 3.0      --
 --================================--
 -- for
@@ -386,6 +387,21 @@ if Config.Dispatch.enabled == true then
 				TriggerServerEvent('fireDispatch:create', text, coords)
 			elseif Config.Dispatch.playSound == "inferno" then
 				-- add you own dispatch chat here
+				-- is you have core_dispatch
+				
+				--[[
+				TriggerServerEvent("core_dispatch:addCall",
+					"10-10",
+					"FIRE",
+					{{icon = "fas fa-fire", info = "A fire broke out at " ..streetName}},
+					{coords[1], coords[2], coords[3]},
+					"fire",
+					10000,
+					436,
+					5
+				)
+				--]]
+
 				local text = ("A fire broke out at %s."):format((crossingRoad > 0) and streetName .. " / " .. GetStreetNameFromHashKey(crossingRoad) or streetName)
 				TriggerServerEvent('fireDispatch:create', text, coords)
 				-- SoundFireSiren
@@ -410,35 +426,53 @@ AddEventHandler(
 
 if Config.Dispatch.Framework == "qb" then
 	QBCore = exports['qb-core']:GetCoreObject()
+	PlayerJob = {}
 
-	-- old
-	--QBCore = nil
-	--TriggerEvent('QBCore:GetObject', function(obj) QBCore = obj end)
 end
 
 RegisterNetEvent('QBCore:Client:OnPlayerLoaded', function()
     QBCore.Functions.GetPlayerData(function(PlayerData)
         PlayerJob = PlayerData.job
+		onDuty = PlayerData.job.onduty
         if PlayerData.job.onduty then
-            if PlayerData.job.name == Config.Fire.spawner.firefighterJobs then
-                TriggerServerEvent("QBCore:ToggleDuty")
-				TriggerServerEvent("fire:server:firedispatch", source) -- for firecall 
+            --if PlayerJob.name ~= Config.Fire.spawner.firefighterJobs then
+			if PlayerJob.name ~= "ambulance" or PlayerJob.name ~= "fire" then
+				TriggerServerEvent("fire:server:Adddispatch", PlayerJob.name) -- for Add firecall 
             end
         end
     end)
 end)
 
 RegisterNetEvent('QBCore:Client:OnPlayerUnload', function()
-    if JobInfo.name == Config.Fire.spawner.firefighterJobs then
+    --if PlayerJob.name== Config.Fire.spawner.firefighterJobs and onDuty then
+	if PlayerJob.name ~= "ambulance" or PlayerJob.name ~= "fire" and onDuty then
+		TriggerServerEvent("fire:server:Removedispatch", PlayerJob.name) -- for Remove firecall
+    end
+end)
+
+
+RegisterNetEvent('QBCore:Client:OnJobUpdate', function(JobInfo)
+    PlayerJob = JobInfo
+    --if PlayerJob.name== Config.Fire.spawner.firefighterJobs then
+	if PlayerJob.name ~= "ambulance" or PlayerJob.name ~= "fire" then
+        onDuty = PlayerJob.onduty
         if PlayerJob.onduty then
-            TriggerServerEvent("QBCore:ToggleDuty")
-            TriggerServerEvent("fire:server:firedispatch", source) -- for firecall    
-            OnDuty = false
+            TriggerServerEvent("fire:server:Adddispatch", PlayerJob.name) -- for Add firecall
+        else
+            TriggerServerEvent("fire:server:Removedispatch", PlayerJob.name) -- for Remove firecall  
         end
     end
 end)
 
-RegisterNetEvent('QBCore:Client:OnJobUpdate', function(JobInfo)
-    PlayerJob = JobInfo
-    onDuty = PlayerJob.onduty
+RegisterNetEvent('QBCore:Client:SetDuty', function(duty)
+    --if PlayerJob.name== Config.Fire.spawner.firefighterJobs and duty ~= onDuty then
+	if PlayerJob.name ~= "ambulance" or PlayerJob.name ~= "fire" and onDuty then
+        if duty then
+            TriggerServerEvent("fire:server:Adddispatch", PlayerJob.name) -- for Add firecall    
+        else
+            TriggerServerEvent("fire:server:Removedispatch", PlayerJob.name) -- for Remove firecall    
+        end
+    end
+
+    onDuty = duty
 end)
