@@ -1,4 +1,4 @@
-![Logo](https://i.imgur.com/cfPLDVh.png)
+![Logo](https://i.imgur.com/lKBSPoC.png)
 
 [![License GNU-GPL v3](https://img.shields.io/github/license/gimicze/firescript?style=for-the-badge)](https://github.com/gimicze/firescript/blob/master/LICENSE "License")
 [![Latest release](https://img.shields.io/github/v/release/gimicze/firescript?style=for-the-badge)](https://github.com/gimicze/firescript/releases/latest "Latest release")
@@ -18,19 +18,6 @@ A FiveM resource enabling whitelisted users to create a (*somewhat*) realistic f
 2. is you rename your job go to client/main.lua , go down to line 433 or search ambulance
 3, is you rename your dispatch go to client/main.lua , go down to line 389 or search fd:dispatch, (add you own dispatch chat here)
 3. Extract the contents into folder called `firescript` into your resources folder.
-4. Start the script: **a)** in the `server.cfg` file; **b)** through the console
-
-## Starting a resource through console
-
-1. In a server console, or client console (F8), type in `refresh` and confirm using ENTER
-2. Type in `start firescript` and confirm using ENTER
-
-## Starting a resource in `server.cfg`
-1. Add this line to your server.cfg
-```
-start firescript
-```
-2. Save the file and restart the server.
 
 # Usage & Commands
 
@@ -40,8 +27,11 @@ start firescript
 *None! Feel free to open issue when you find any!*
 
 # Credits
-- Albo1125 and foregz - I borrowed some particles from their fire scripts. Thanks!
-- MadMick#0773, Mickey#2590 and MadLadClip for testing and help with the script.
+[thanks to Albo1125](https://github.com/Albo1125/FireScript) for make Firescript
+
+[thanks to gimicze](https://github.com/gimicze/firescript) for use his Firescript
+
+[thanks to inferno-collection](https://github.com/inferno-collection) for make Addons
 
 # Contributing
 Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
