@@ -427,48 +427,48 @@ AddEventHandler(
 if Config.Dispatch.Framework == "qb" then
 	QBCore = exports['qb-core']:GetCoreObject()
 	PlayerJob = {}
+	local PlayerData = QBCore.Functions.GetPlayerData()
 
+	RegisterNetEvent('QBCore:Client:OnPlayerLoaded', function()
+		QBCore.Functions.GetPlayerData(function(PlayerData)
+			PlayerJob = PlayerData.job
+			onDuty = PlayerData.job.onduty
+			if PlayerData.job.onduty then
+				if PlayerData.job.name == Config.Dispatch.JobName then
+					TriggerServerEvent("fire:server:Adddispatch") -- for Add firecall 
+				end
+			end
+		end)
+	end)
+	
+	RegisterNetEvent('QBCore:Client:OnPlayerUnload', function()
+		if PlayerData.job.name == Config.Dispatch.JobName and onDuty then
+			TriggerServerEvent("fire:server:Removedispatch") -- for Remove firecall
+		end
+	end)
+	
+	
+	RegisterNetEvent('QBCore:Client:OnJobUpdate', function(JobInfo)
+		PlayerJob = JobInfo
+		if PlayerData.job.name == Config.Dispatch.JobName then
+			onDuty = PlayerJob.onduty
+			if PlayerJob.onduty then
+				TriggerServerEvent("fire:server:Adddispatch") -- for Add firecall
+			else
+				TriggerServerEvent("fire:server:Removedispatch") -- for Remove firecall  
+			end
+		end
+	end)
+	
+	RegisterNetEvent('QBCore:Client:SetDuty', function(duty)
+		if PlayerData.job.name == Config.Dispatch.JobName then
+			if duty then
+				TriggerServerEvent("fire:server:Adddispatch") -- for Add firecall    
+			else
+				TriggerServerEvent("fire:server:Removedispatch") -- for Remove firecall    
+			end
+		end
+	
+		onDuty = duty
+	end)
 end
-
-RegisterNetEvent('QBCore:Client:OnPlayerLoaded', function()
-    QBCore.Functions.GetPlayerData(function(PlayerData)
-        PlayerJob = PlayerData.job
-		onDuty = PlayerData.job.onduty
-        if PlayerData.job.onduty then
-			if PlayerJob.name == Config.Fire.spawner.firefighterJobs or Config.Dispatch.JobName then
-				TriggerServerEvent("fire:server:Adddispatch", PlayerJob.name) -- for Add firecall 
-            end
-        end
-    end)
-end)
-
-RegisterNetEvent('QBCore:Client:OnPlayerUnload', function()
-	if PlayerJob.name == Config.Fire.spawner.firefighterJobs or Config.Dispatch.JobName and onDuty then
-		TriggerServerEvent("fire:server:Removedispatch", PlayerJob.name) -- for Remove firecall
-    end
-end)
-
-
-RegisterNetEvent('QBCore:Client:OnJobUpdate', function(JobInfo)
-    PlayerJob = JobInfo
-    if PlayerJob.name == Config.Fire.spawner.firefighterJobs or Config.Dispatch.JobName then
-        onDuty = PlayerJob.onduty
-        if PlayerJob.onduty then
-            TriggerServerEvent("fire:server:Adddispatch", PlayerJob.name) -- for Add firecall
-        else
-            TriggerServerEvent("fire:server:Removedispatch", PlayerJob.name) -- for Remove firecall  
-        end
-    end
-end)
-
-RegisterNetEvent('QBCore:Client:SetDuty', function(duty)
-	if PlayerJob.name == Config.Fire.spawner.firefighterJobs or Config.Dispatch.JobName then
-        if duty then
-            TriggerServerEvent("fire:server:Adddispatch", PlayerJob.name) -- for Add firecall    
-        else
-            TriggerServerEvent("fire:server:Removedispatch", PlayerJob.name) -- for Remove firecall    
-        end
-    end
-
-    onDuty = duty
-end)
