@@ -435,8 +435,7 @@ RegisterNetEvent('QBCore:Client:OnPlayerLoaded', function()
         PlayerJob = PlayerData.job
 		onDuty = PlayerData.job.onduty
         if PlayerData.job.onduty then
-            --if PlayerJob.name ~= Config.Fire.spawner.firefighterJobs then
-			if PlayerJob.name ~= "ambulance" or PlayerJob.name ~= "fire" then
+			if PlayerJob.name == Config.Fire.spawner.firefighterJobs or Config.Dispatch.JobName then
 				TriggerServerEvent("fire:server:Adddispatch", PlayerJob.name) -- for Add firecall 
             end
         end
@@ -444,8 +443,7 @@ RegisterNetEvent('QBCore:Client:OnPlayerLoaded', function()
 end)
 
 RegisterNetEvent('QBCore:Client:OnPlayerUnload', function()
-    --if PlayerJob.name== Config.Fire.spawner.firefighterJobs and onDuty then
-	if PlayerJob.name ~= "ambulance" or PlayerJob.name ~= "fire" and onDuty then
+	if PlayerJob.name == Config.Fire.spawner.firefighterJobs or Config.Dispatch.JobName and onDuty then
 		TriggerServerEvent("fire:server:Removedispatch", PlayerJob.name) -- for Remove firecall
     end
 end)
@@ -453,8 +451,7 @@ end)
 
 RegisterNetEvent('QBCore:Client:OnJobUpdate', function(JobInfo)
     PlayerJob = JobInfo
-    --if PlayerJob.name== Config.Fire.spawner.firefighterJobs then
-	if PlayerJob.name ~= "ambulance" or PlayerJob.name ~= "fire" then
+    if PlayerJob.name == Config.Fire.spawner.firefighterJobs or Config.Dispatch.JobName then
         onDuty = PlayerJob.onduty
         if PlayerJob.onduty then
             TriggerServerEvent("fire:server:Adddispatch", PlayerJob.name) -- for Add firecall
@@ -465,8 +462,7 @@ RegisterNetEvent('QBCore:Client:OnJobUpdate', function(JobInfo)
 end)
 
 RegisterNetEvent('QBCore:Client:SetDuty', function(duty)
-    --if PlayerJob.name== Config.Fire.spawner.firefighterJobs and duty ~= onDuty then
-	if PlayerJob.name ~= "ambulance" or PlayerJob.name ~= "fire" and onDuty then
+	if PlayerJob.name == Config.Fire.spawner.firefighterJobs or Config.Dispatch.JobName then
         if duty then
             TriggerServerEvent("fire:server:Adddispatch", PlayerJob.name) -- for Add firecall    
         else

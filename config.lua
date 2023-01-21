@@ -28,4 +28,5 @@ Config.Dispatch = {
     removeBlipTimeout = 400000, -- The amount of time in ms after which the dispatch call blip will be automatically removed
     playSound = "chat", -- test for new Sound "inferno" or "chat" or "none"
     Framework = "qb", -- * "qb" (qb-core) * "esx" (ESX) * "none" -- Set to a esx or qb job / jobs you want to be automatically subscribed to dispatch; Set to nil or false if you don't want to use this
+    JobName = 'ambulance', -- Your Fire Job Name
 }
