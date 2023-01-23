@@ -18,13 +18,11 @@ Framework: QB / ESX / OX / VRP
 # Instalation
 1. config in config.lua setup your Framework - firefighterJobs - playSound
 
-2. is you rename your job go to client/main.lua , go down to line 433 or search ambulance
+2. you can rename/add your dispatch go to client/main.lua , go down to line 389 or search fd:dispatch, (add you own dispatch chat here)
 
-3. is you rename your dispatch go to client/main.lua , go down to line 389 or search fd:dispatch, (add you own dispatch chat here)
+3. add your Whitelist
 
-4. add your Whitelist
-
-5. Extract the contents into folder called `firescript` into your resources folder.
+4. Extract the contents into folder called `firescript` into your resources folder.
 
 # Usage & Commands
 
