@@ -573,13 +573,13 @@ if Config.Dispatch.Framework == "esx" or Config.Dispatch.Framework == "qb" then
             local allowedJobs = {}
 			local firefighterJobs = Config.Fire.spawner.firefighterJobs or {}
 
-			if type(Config.Dispatch.enableJob) == "table" then
-				for k, v in pairs(Config.Dispatch.enableJob) do
+			if type(Config.Dispatch.JobName) == "table" then
+				for k, v in pairs(Config.Dispatch.JobName) do
 					allowedJobs[v] = true
 				end
 			else
-				allowedJobs[Config.Dispatch.enableJob] = true
-				firefighterJobs[Config.Dispatch.enableJob] = true
+				allowedJobs[Config.Dispatch.JobName] = true
+				firefighterJobs[Config.Dispatch.JobName] = true
 			end
 
 			RegisterNetEvent("esx:setJob")
