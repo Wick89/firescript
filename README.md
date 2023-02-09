@@ -5,7 +5,7 @@
 [![Total downloads](https://img.shields.io/github/downloads/Wick89/firescript/total?style=for-the-badge)](https://github.com/Wick89/firescript/releases "Total downloads")
 
 
-A FiveM resource enabling whitelisted users to create a (*somewhat*) realistic fires. As far as I am aware, the only fire script compatible with OneSync Infinity / Beyond.
+realistic fires. the fire script compatible with OneSync Infinity / Beyond.
 
 Framework: QB / ESX / OX / VRP
 
@@ -24,7 +24,7 @@ Framework: QB / ESX / OX / VRP
 *Tutorial moved to [gimicze wiki](https://github.com/gimicze/firescript/wiki).*
 
 # Known bugs
-*some framework dont work for now as OX*
+*none for now*
 
 # Credits
 [thanks to Albo1125](https://github.com/Albo1125/FireScript) for make Firescript
