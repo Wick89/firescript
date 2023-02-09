@@ -16,17 +16,11 @@ Framework: QB / ESX / OX / VRP
 </details>
 
 # Instalation
-1. config in config.lua setup your Framework - firefighterJobs - playSound
-
-2. you can rename/add your dispatch go to client/main.lua , go down to line 389 or search fd:dispatch, (add you own dispatch chat here)
-
-3. add your Whitelist
-
-4. Extract the contents into folder called `firescript` into your resources folder.
+*Instalation moved to [the wiki](https://github.com/Wick89/FirescriptAddons/wiki).*
 
 # Usage & Commands
 
-*Tutorial moved to [the wiki](https://github.com/gimicze/firescript/wiki).*
+*Tutorial moved to [gimicze wiki](https://github.com/gimicze/firescript/wiki).*
 
 # Known bugs
 *some framework dont work for now as OX*
