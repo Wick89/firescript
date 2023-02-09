@@ -4,7 +4,8 @@
 --  make some function by Wick	  --
 --      License: GNU GPL 3.0      --
 --================================--
-Tones = {"fire", "medical"}
+-- For Tones sound test it in config
+-- Tones = {"fire", "medical"}
 
 Dispatch = {
 	lastCall = nil,

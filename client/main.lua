@@ -4,8 +4,8 @@
 --  make some function by Wick	  --
 --      License: GNU GPL 3.0      --
 --================================--
--- for
-Stations = {"els", "sls", "rh"}
+-- For stations sound test it in config
+-- Stations = {"els", "sls", "rh"}
 
 --================================--
 --              CHAT              --
@@ -152,226 +152,171 @@ TriggerEvent('chat:addSuggestion', '/randomfires', 'Manages the random fire spaw
 --================================--
 
 RegisterNetEvent('playerSpawned')
-AddEventHandler(
-	'playerSpawned',
-	function()
-		print("Requested synchronization..")
-		TriggerServerEvent('fireManager:requestSync')
-	end
-)
+AddEventHandler('playerSpawned', function()
+	print("Requested synchronization..")
+	TriggerServerEvent('fireManager:requestSync')
+end)
 
 RegisterNetEvent('onClientResourceStart')
-AddEventHandler(
-	'onClientResourceStart',
-	function(resourceName)
-		if resourceName == GetCurrentResourceName() then
-			-- Check the command whitelist
-			TriggerServerEvent('fireManager:checkWhitelist')
-		end
+AddEventHandler('onClientResourceStart', function(resourceName)
+	if resourceName == GetCurrentResourceName() then
+		-- Check the command whitelist
+		TriggerServerEvent('fireManager:checkWhitelist')
 	end
-)
+end)
 
 --================================--
 --            COMMANDS            --
 --================================--
 
-RegisterCommand(
-	'remindme',
-	function(source, args, rawCommand)
-		local dispatchNumber = tonumber(args[1])
-		if not dispatchNumber then
-			sendMessage("Invalid argument.")
-			return
-		end
+RegisterCommand('remindme', function(source, args, rawCommand)
+	local dispatchNumber = tonumber(args[1])
+	if not dispatchNumber then
+		sendMessage("Invalid argument.")
+		return
+	end
 
-		local success = Dispatch:remind(dispatchNumber)
+	local success = Dispatch:remind(dispatchNumber)
 
-		if not success then
-			sendMessage("Couldn't find the specified dispatch.")
-			return
-		end
-	end,
-	false
-)
+	if not success then
+		sendMessage("Couldn't find the specified dispatch.")
+		return
+	end
+end, false)
 
-RegisterCommand(
-	'cleardispatch',
-	function(source, args, rawCommand)
-		Dispatch:clear(tonumber(args[1]))
-	end,
-	false
-)
+RegisterCommand('cleardispatch', function(source, args, rawCommand)
+	Dispatch:clear(tonumber(args[1]))
+end, false)
 
-RegisterCommand(
-	'startfire',
-	function(source, args, rawCommand)
-		local maxSpread = tonumber(args[1])
-		local probability = tonumber(args[2])
-		local triggerDispatch = args[3] == "true"
+RegisterCommand('startfire', function(source, args, rawCommand)
+	local maxSpread = tonumber(args[1])
+	local probability = tonumber(args[2])
+	local triggerDispatch = args[3] == "true"
 
-		table.remove(args, 1)
-		table.remove(args, 1)
-		table.remove(args, 1)
+	table.remove(args, 1)
+	table.remove(args, 1)
+	table.remove(args, 1)
 
-		local dispatchMessage = next(args) and table.concat(args, " ") or nil
+	local dispatchMessage = next(args) and table.concat(args, " ") or nil
 
-		TriggerServerEvent('fireManager:command:startfire', GetEntityCoords(GetPlayerPed(-1)), maxSpread, probability, triggerDispatch, dispatchMessage)
-	end,
-	false
-)
+	TriggerServerEvent('fireManager:command:startfire', GetEntityCoords(GetPlayerPed(-1)), maxSpread, probability, triggerDispatch, dispatchMessage)
+end, false)
 
-RegisterCommand(
-	'registerscenario',
-	function(source, args, rawCommand)
-		local coords = nil
+RegisterCommand('registerscenario', function(source, args, rawCommand)
+	local coords = nil
 
-		local x = tonumber(args[1])
-		local y = tonumber(args[2])
-		local z = tonumber(args[3])
+	local x = tonumber(args[1])
+	local y = tonumber(args[2])
+	local z = tonumber(args[3])
 
-		if x and y and z then
-			coords = vector3(x, y, z)
-		end
+	if x and y and z then
+		coords = vector3(x, y, z)
+	end
 
-		TriggerServerEvent('fireManager:command:registerscenario', coords or GetEntityCoords(GetPlayerPed(-1)))
-	end,
-	false
-)
+	TriggerServerEvent('fireManager:command:registerscenario', coords or GetEntityCoords(GetPlayerPed(-1)))
+end, false)
 
-RegisterCommand(
-	'addflame',
-	function(source, args, rawCommand)
-		local registeredFireID = tonumber(args[1])
-		local spread = tonumber(args[2])
-		local chance = tonumber(args[3])
+RegisterCommand('addflame', function(source, args, rawCommand)
+	local registeredFireID = tonumber(args[1])
+	local spread = tonumber(args[2])
+	local chance = tonumber(args[3])
 
-		local coords = nil
+	local coords = nil
 
-		local x = tonumber(args[4])
-		local y = tonumber(args[5])
-		local z = tonumber(args[6])
+	local x = tonumber(args[4])
+	local y = tonumber(args[5])
+	local z = tonumber(args[6])
 
-		if x and y and z then
-			coords = vector3(x, y, z)
-		end
+	if x and y and z then
+		coords = vector3(x, y, z)
+	end
 
-		if registeredFireID and spread and chance then
-			TriggerServerEvent('fireManager:command:addflame', registeredFireID, coords or GetEntityCoords(GetPlayerPed(-1)), spread, chance)
-		end
-	end,
-	false
-)
+	if registeredFireID and spread and chance then
+		TriggerServerEvent('fireManager:command:addflame', registeredFireID, coords or GetEntityCoords(GetPlayerPed(-1)), spread, chance)
+	end
+end, false)
 
 -- Aliases
 
-RegisterCommand(
-	'registerfire',
-	function(source, args, rawCommand)
-		ExecuteCommand("registerscenario" .. rawCommand:sub(13))
-	end,
-	false
-)
+RegisterCommand('registerfire', function(source, args, rawCommand)
+	ExecuteCommand("registerscenario" .. rawCommand:sub(13))
+end, false)
 
-RegisterCommand(
-	'removeregisteredfire',
-	function(source, args, rawCommand)
-		ExecuteCommand("removescenario" .. rawCommand:sub(21))
-	end,
-	false
-)
+RegisterCommand('removeregisteredfire', function(source, args, rawCommand)
+	ExecuteCommand("removescenario" .. rawCommand:sub(21))
+end, false)
 
-RegisterCommand(
-	'startregisteredfire',
-	function(source, args, rawCommand)
-		ExecuteCommand("startscenario" .. rawCommand:sub(20))
-	end,
-	false
-)
+RegisterCommand('startregisteredfire', function(source, args, rawCommand)
+	ExecuteCommand("startscenario" .. rawCommand:sub(20))
+end, false)
 
-RegisterCommand(
-	'stopregisteredfire',
-	function(source, args, rawCommand)
-		ExecuteCommand("stopscenario" .. rawCommand:sub(19))
-	end,
-	false
-)
+RegisterCommand('stopregisteredfire', function(source, args, rawCommand)
+	ExecuteCommand("stopscenario" .. rawCommand:sub(19))
+end, false)
 
 --================================--
 --             EVENTS             --
 --================================--
 
 RegisterNetEvent('fireClient:synchronizeFlames')
-AddEventHandler(
-	'fireClient:synchronizeFlames',
-	function(fires)
-		syncInProgress = true
-		Fire:removeAll(
-			function()
-				for k, v in pairs(fires) do
-					for _k, _v in ipairs(v) do
-						Fire:createFlame(k, _k, _v)
-					end
-				end
-				syncInProgress = false
+AddEventHandler('fireClient:synchronizeFlames', function(fires)
+	syncInProgress = true
+	Fire:removeAll(function()
+		for k, v in pairs(fires) do
+			for _k, _v in ipairs(v) do
+				Fire:createFlame(k, _k, _v)
 			end
-		)
-	end
-)
+		end
+		syncInProgress = false
+	end)
+end)
 
 RegisterNetEvent('fireClient:removeFire')
-AddEventHandler(
-	'fireClient:removeFire',
-	function(fireIndex)
-		while syncInProgress do
-			Citizen.Wait(10)
-		end
-		syncInProgress = true
-		Fire:remove(fireIndex)
-		syncInProgress = false
+AddEventHandler('fireClient:removeFire', function(fireIndex)
+	while syncInProgress do
+		Citizen.Wait(10)
 	end
-)
+	
+	syncInProgress = true
+	
+	Fire:remove(fireIndex)
+	syncInProgress = false
+end)
 
 RegisterNetEvent('fireClient:removeAllFires')
-AddEventHandler(
-	'fireClient:removeAllFires',
-	function()
-		while syncInProgress do
-			Citizen.Wait(10)
-		end
-		syncInProgress = true
-		Fire:removeAll(
-			function()
-				syncInProgress = false
-			end
-		)
+AddEventHandler('fireClient:removeAllFires', function()
+	while syncInProgress do
+		Citizen.Wait(10)
 	end
-)
+	
+	syncInProgress = true
+	
+	Fire:removeAll(function()
+		syncInProgress = false
+	end)
+end)
 
 RegisterNetEvent("fireClient:removeFlame")
-AddEventHandler(
-    "fireClient:removeFlame",
-	function(fireIndex, flameIndex)
-		while syncInProgress do
-			Citizen.Wait(10)
-		end
-		syncInProgress = true
-		Fire:removeFlame(fireIndex, flameIndex)
-		syncInProgress = false
-    end
-)
+AddEventHandler("fireClient:removeFlame", function(fireIndex, flameIndex)
+	while syncInProgress do
+		Citizen.Wait(10)
+	end
+	
+	syncInProgress = true
+	Fire:removeFlame(fireIndex, flameIndex)
+	syncInProgress = false
+end)
 
 RegisterNetEvent("fireClient:createFlame")
-AddEventHandler(
-    "fireClient:createFlame",
-	function(fireIndex, flameIndex, coords)
-		while syncInProgress do
-			Citizen.Wait(10)
-		end
-		syncInProgress = true
-		Fire:createFlame(fireIndex, flameIndex, coords)
-		syncInProgress = false
-    end
-)
+AddEventHandler("fireClient:createFlame", function(fireIndex, flameIndex, coords)
+	while syncInProgress do
+		Citizen.Wait(10)
+	end
+		
+	syncInProgress = true
+	Fire:createFlame(fireIndex, flameIndex, coords)
+	syncInProgress = false
+end)
 
 -- Dispatch
 
@@ -381,15 +326,16 @@ if Config.Dispatch.enabled == true then
 		local streetName, crossingRoad = GetStreetNameAtCoord(coords.x, coords.y, coords.z)
 		local streetName = GetStreetNameFromHashKey(streetName)
 		
-		if Config.Dispatch.playSound == "chat" or Config.Dispatch.playSound == "inferno" then
-			if Config.Dispatch.playSound == "chat" then
+		--if Config.Dispatch.playDispatch == "chat" or Config.Dispatch.playDispatch == "ps-dispatch"  or Config.Dispatch.playDispatch == "core_dispatch" then
+			if Config.Dispatch.playDispatch == "chat" then
+				-- Chat
 				local text = ("A fire broke out at %s."):format((crossingRoad > 0) and streetName .. " / " .. GetStreetNameFromHashKey(crossingRoad) or streetName)
 				TriggerServerEvent('fireDispatch:create', text, coords)
-			elseif Config.Dispatch.playSound == "inferno" then
-				-- add you own dispatch chat here
-				-- is you have core_dispatch
-				
-				--[[
+			elseif Config.Dispatch.playDispatch == "ps-dispatch" then
+				-- ps-dispatch
+				exports['ps-dispatch']:Fire()
+			elseif Config.Dispatch.playDispatch == "core_dispatch" then	
+				-- core_dispatch
 				TriggerServerEvent("core_dispatch:addCall",
 					"10-10",
 					"FIRE",
@@ -400,24 +346,20 @@ if Config.Dispatch.enabled == true then
 					436,
 					5
 				)
-				--]]
-
-				local text = ("A fire broke out at %s."):format((crossingRoad > 0) and streetName .. " / " .. GetStreetNameFromHashKey(crossingRoad) or streetName)
-				TriggerServerEvent('fireDispatch:create', text, coords)
-				-- SoundFireSiren
-				exports["inferno-fire-ems-pager"]:SoundFireSiren(Stations)
+					
 			end
+		--end
+		if Config.Dispatch.playSound == "inferno" then
+		-- SoundFireSiren
+		exports["inferno-fire-ems-pager"]:SoundFireSiren(Stations)
 		end
 	end)
 end
 
 RegisterNetEvent('fireClient:createDispatch')
-AddEventHandler(
-	'fireClient:createDispatch',
-	function(dispatchNumber, coords)
-		Dispatch:create(dispatchNumber, coords)
-	end
-)
+AddEventHandler('fireClient:createDispatch', function(dispatchNumber, coords)
+	Dispatch:create(dispatchNumber, coords)
+end)
 
 
 --================================--
@@ -442,33 +384,21 @@ if Config.Dispatch.Framework == "qb" then
 	end)
 	
 	RegisterNetEvent('QBCore:Client:OnPlayerUnload', function()
-		if PlayerData.job.name == Config.Dispatch.JobName and onDuty then
-			TriggerServerEvent("fire:server:Removedispatch") -- for Remove firecall
-		end
+		QBCore.Functions.GetPlayerData(function(PlayerData)
+			PlayerJob = PlayerData.job
+			if PlayerData.job.name == Config.Dispatch.JobName and onDuty then
+				TriggerServerEvent("fire:server:Removedispatch") -- for Remove firecall
+			end
+		end)
 	end)
 	
 	
 	RegisterNetEvent('QBCore:Client:OnJobUpdate', function(JobInfo)
 		PlayerJob = JobInfo
-		if PlayerData.job.name == Config.Dispatch.JobName then
-			onDuty = PlayerJob.onduty
-			if PlayerJob.onduty then
-				TriggerServerEvent("fire:server:Adddispatch") -- for Add firecall
-			else
-				TriggerServerEvent("fire:server:Removedispatch") -- for Remove firecall  
-			end
+		if JobInfo.name == Config.Dispatch.JobName then
+			TriggerServerEvent("fire:server:Adddispatch") -- for Add firecall
+		else
+			TriggerServerEvent("fire:server:Removedispatch") -- for Remove firecall  
 		end
-	end)
-	
-	RegisterNetEvent('QBCore:Client:SetDuty', function(duty)
-		if PlayerData.job.name == Config.Dispatch.JobName then
-			if duty then
-				TriggerServerEvent("fire:server:Adddispatch") -- for Add firecall    
-			else
-				TriggerServerEvent("fire:server:Removedispatch") -- for Remove firecall    
-			end
-		end
-	
-		onDuty = duty
 	end)
 end
