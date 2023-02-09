@@ -37,4 +37,4 @@ Framework: QB / ESX / OX / VRP
 Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
 
 # License
-[GNU GPL 3.0](https://github.com/gimicze/firescript/blob/main/LICENSE)
+[GNU GPL 3.0](https://github.com/Wick89/FirescriptAddons/blob/main/LICENSE)
