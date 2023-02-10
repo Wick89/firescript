@@ -1,7 +1,6 @@
 --================================--
---      FIRE SCRIPT v1.7.7        --
+--       FIRE SCRIPT v1.7.6       --
 --  by GIMI (+ foregz, Albo1125)  --
---  make some function by Wick	  --
 --      License: GNU GPL 3.0      --
 --================================--
 
@@ -9,9 +8,8 @@
 --         VERSION CHECK          --
 --================================--
 
-Version = "1.7.7"
-LatestVersionFeed =  "https://api.github.com/repos/Wick89/firescript/releases/latest"
---LatestVersionFeed = "https://api.github.com/repos/gimicze/firescript/releases/latest"
+Version = "1.7.6"
+LatestVersionFeed = "https://api.github.com/repos/gimicze/firescript/releases/latest"
 
 Citizen.CreateThread(
 	checkVersion
@@ -34,7 +32,8 @@ function onResourceStart(resourceName)
 end
 
 RegisterNetEvent('onResourceStart')
-AddEventHandler('onResourceStart',
+AddEventHandler(
+	'onResourceStart',
 	onResourceStart
 )
 
@@ -48,7 +47,8 @@ function onPlayerDropped()
 end
 
 RegisterNetEvent('playerDropped')
-AddEventHandler('playerDropped',
+AddEventHandler(
+	'playerDropped',
 	onPlayerDropped
 )
 
@@ -57,275 +57,257 @@ AddEventHandler('playerDropped',
 --================================--
 
 RegisterNetEvent('fireManager:command:startfire')
-AddEventHandler('fireManager:command:startfire', function(coords, maxSpread, chance, triggerDispatch, dispatchMessage)
-	if not Whitelist:isWhitelisted(source, "firescript.start") then
-		sendMessage(source, "Insufficient permissions.")
-		return
-	end
+AddEventHandler(
+	'fireManager:command:startfire',
+	function(coords, maxSpread, chance, triggerDispatch, dispatchMessage)
+		if not Whitelist:isWhitelisted(source, "firescript.start") then
+			sendMessage(source, "Insufficient permissions.")
+			return
+		end
 
-	local _source = source
+		local _source = source
 
-	local maxSpread = (maxSpread ~= nil and tonumber(maxSpread) ~= nil) and tonumber(maxSpread) or Config.Fire.maximumSpreads
-	local chance = (chance ~= nil and tonumber(chance) ~= nil) and tonumber(chance) or Config.Fire.fireSpreadChance
+		local maxSpread = (maxSpread ~= nil and tonumber(maxSpread) ~= nil) and tonumber(maxSpread) or Config.Fire.maximumSpreads
+		local chance = (chance ~= nil and tonumber(chance) ~= nil) and tonumber(chance) or Config.Fire.fireSpreadChance
 
-	local fireIndex = Fire:create(coords, maxSpread, chance)
+		local fireIndex = Fire:create(coords, maxSpread, chance)
 
-	sendMessage(source, "Spawned fire #" .. fireIndex)
+		sendMessage(source, "Spawned fire #" .. fireIndex)
 
-	if triggerDispatch then
-		Citizen.SetTimeout(Config.Dispatch.timeout, function()
-			if Config.Dispatch.enabled and not Config.Dispatch.disableCalls then
-				if dispatchMessage then
-					Dispatch:create(dispatchMessage, coords)
-				else
-					Dispatch.expectingInfo[_source] = true
-					TriggerClientEvent('fd:dispatch', _source, coords)
+		if triggerDispatch then
+			Citizen.SetTimeout(
+				Config.Dispatch.timeout,
+				function()
+					if Config.Dispatch.enabled and not Config.Dispatch.disableCalls then
+						if dispatchMessage then
+							Dispatch:create(dispatchMessage, coords)
+						else
+							Dispatch.expectingInfo[_source] = true
+							TriggerClientEvent('fd:dispatch', _source, coords)
+						end
+					end
 				end
-			end
-		end)
+			)
+		end
 	end
-end)
+)
 
 RegisterNetEvent('fireManager:command:registerscenario')
-AddEventHandler('fireManager:command:registerscenario', function(coords)
-	if not Whitelist:isWhitelisted(source, "firescript.manage") then
-		sendMessage(source, "Insufficient permissions.")
-		return
+AddEventHandler(
+	'fireManager:command:registerscenario',
+	function(coords)
+		if not Whitelist:isWhitelisted(source, "firescript.manage") then
+			sendMessage(source, "Insufficient permissions.")
+			return
+		end
+
+		local registeredFireID = Fire:register(coords)
+
+		sendMessage(source, "Created scenario #" .. registeredFireID)
 	end
-
-	local registeredFireID = Fire:register(coords)
-
-	sendMessage(source, "Created scenario #" .. registeredFireID)
-end)
+)
 
 RegisterNetEvent('fireManager:command:addflame')
-AddEventHandler('fireManager:command:addflame', function(registeredFireID, coords, spread, chance)
-	if not Whitelist:isWhitelisted(source, "firescript.manage") then
-		sendMessage(source, "Insufficient permissions.")
-		return
+AddEventHandler(
+	'fireManager:command:addflame',
+	function(registeredFireID, coords, spread, chance)
+		if not Whitelist:isWhitelisted(source, "firescript.manage") then
+			sendMessage(source, "Insufficient permissions.")
+			return
+		end
+
+		local registeredFireID = tonumber(registeredFireID)
+		local spread = tonumber(spread)
+		local chance = tonumber(chance)
+
+		if not (coords and registeredFireID and spread and chance) then
+			return
+		end
+
+		local flameID = Fire:addFlame(registeredFireID, coords, spread, chance)
+
+		if not flameID then
+			sendMessage(source, "No such scenario.")
+			return
+		end
+
+		sendMessage(source, "Added flame #" .. flameID)
 	end
+)
 
-	local registeredFireID = tonumber(registeredFireID)
-	local spread = tonumber(spread)
-	local chance = tonumber(chance)
+RegisterCommand(
+	'stopfire',
+	function(source, args, rawCommand)
+		if not Whitelist:isWhitelisted(source, "firescript.stop") then
+			sendMessage(source, "Insufficient permissions.")
+			return
+		end
 
-	if not (coords and registeredFireID and spread and chance) then
-		return
-	end
+		local fireIndex = tonumber(args[1])
 
-	local flameID = Fire:addFlame(registeredFireID, coords, spread, chance)
+		if not fireIndex then
+			return
+		end
 
-	if not flameID then
-		sendMessage(source, "No such scenario.")
-		return
-	end
-
-	sendMessage(source, "Added flame #" .. flameID)
-end)
-
-RegisterCommand('stopfire', function(source, args, rawCommand)
-	if not Whitelist:isWhitelisted(source, "firescript.stop") then
-		sendMessage(source, "Insufficient permissions.")
-		return
-	end
-
-	local fireIndex = tonumber(args[1])
-
-	if not fireIndex then
-		return
-	end
-
-	if Fire:remove(fireIndex) then
-		sendMessage(source, "Stopping fire #" .. fireIndex)
+		if Fire:remove(fireIndex) then
+			sendMessage(source, "Stopping fire #" .. fireIndex)
 			TriggerClientEvent("pNotify:SendNotification", source, {
-			text = "Fire " .. fireIndex .. " going out...",
+				text = "Fire " .. fireIndex .. " going out...",
+				type = "info",
+				timeout = 5000,
+				layout = "centerRight",
+				queue = "fire"
+			})
+		end
+	end,
+	false
+)
+
+RegisterCommand(
+	'stopallfires',
+	function(source, args, rawCommand)
+		if not Whitelist:isWhitelisted(source, "firescript.stop") then
+			sendMessage(source, "Insufficient permissions.")
+			return
+		end
+
+		Fire:removeAll()
+
+		sendMessage(source, "Stopping fires")
+		TriggerClientEvent("pNotify:SendNotification", source, {
+			text = "Fires going out...",
 			type = "info",
 			timeout = 5000,
 			layout = "centerRight",
 			queue = "fire"
 		})
-	end
-end, false)
+	end,
+	false
+)
 
-RegisterCommand('stopallfires', function(source, args, rawCommand)
-	if not Whitelist:isWhitelisted(source, "firescript.stop") then
-		sendMessage(source, "Insufficient permissions.")
-		return
-	end
-
-	Fire:removeAll()
-
-	sendMessage(source, "Stopping fires")
-	TriggerClientEvent("pNotify:SendNotification", source, {
-		text = "Fires going out...",
-		type = "info",
-		timeout = 5000,
-		layout = "centerRight",
-		queue = "fire"
-	})
-end, false)
-
-RegisterCommand('removeflame', function(source, args, rawCommand)
-	if not Whitelist:isWhitelisted(source, "firescript.manage") then
-		sendMessage(source, "Insufficient permissions.")
-		return
-	end
-
-	local registeredFireID = tonumber(args[1])
-	local flameID = tonumber(args[2])
-
-	if not (registeredFireID and flameID) then
-		return
-	end
-
-	local success = Fire:deleteFlame(registeredFireID, flameID)
-
-	if not success then
-		sendMessage(source, "No such fire or flame registered.")
-		return
-	end
-
-	sendMessage(source, "Removed flame #" .. flameID)
-
-end, false)
-
-RegisterCommand('removescenario', function(source, args, rawCommand)
-	if not Whitelist:isWhitelisted(source, "firescript.manage") then
-		sendMessage(source, "Insufficient permissions.")
-		return
-	end
-	local registeredFireID = tonumber(args[1])
-	if not registeredFireID then
-		return
-	end
-
-	local success = Fire:deleteRegistered(registeredFireID)
-
-	if not success then
-		sendMessage(source, "No such scenario.")
-		return
-	end
-
-	sendMessage(source, "Removed scenario #" .. registeredFireID)
-
-end, false)
-
-RegisterCommand('startscenario', function(source, args, rawCommand)
-	if not Whitelist:isWhitelisted(source, "firescript.start") then
-		sendMessage(source, "Insufficient permissions.")
-		return
-	end
-	
-	local _source = source
-	local registeredFireID = tonumber(args[1])
-	local triggerDispatch = args[2] == "true"
-
-	if not registeredFireID then
-		return
-	end
-
-	local success = Fire:startRegistered(registeredFireID, triggerDispatch, source)
-
-	if not success then
-		sendMessage(source, "No such scenario.")
-		return
-	end
-
-	sendMessage(source, "Started scenario #" .. registeredFireID)
-
-end, false)
-
-RegisterCommand('stopscenario', function(source, args, rawCommand)
-	if not Whitelist:isWhitelisted(source, "firescript.stop") then
-		sendMessage(source, "Insufficient permissions.")
-		return
-	end
-	
-	local _source = source
-	local registeredFireID = tonumber(args[1])
-
-	if not registeredFireID then
-		return
-	end
-
-	local success = Fire:stopRegistered(registeredFireID)
-
-	if not success then
-		sendMessage(source, "No such scenario active.")
-		return
-	end
-
-	sendMessage(source, "Stopping scenario #" .. registeredFireID)
-
-	TriggerClientEvent("pNotify:SendNotification", source, {
-		text = "Fire going out...",
-		type = "info",
-		timeout = 5000,
-		layout = "centerRight",
-		queue = "fire"
-	})
-end, false)
-
-RegisterCommand('firewl', function(source, args, rawCommand)
-	local _source = source
-	local action = args[1]
-	local serverId = tonumber(args[2])
-
-	if not (action and serverId) or serverId < 1 then
-		return
-	end
-
-	local identifier = GetPlayerIdentifier(serverId, 0)
-
-	if not identifier then
-		sendMessage(source, "Player not online.")
-		return
-	end
-
-	if action == "add" then
-		Whitelist:addPlayer(serverId, identifier)
-		sendMessage(source, ("Added %s to the whitelist."):format(GetPlayerName(serverId)))
-	elseif action == "remove" then
-		Whitelist:removePlayer(serverId, identifier)
-		sendMessage(source, ("Removed %s from the whitelist."):format(GetPlayerName(serverId)))
-	else
-		sendMessage(source, "Invalid action.")
-	end
-end, true)
-
-RegisterCommand('firewlreload', function(source, args, rawCommand)
-	Whitelist:load()
-	sendMessage(source, "Reloaded whitelist from config.")
-end, true)
-
-RegisterCommand('firewlsave',
+RegisterCommand(
+	'removeflame',
 	function(source, args, rawCommand)
-	Whitelist:save()
-	sendMessage(source, "Saved whitelist.")
-end, true)
-
-RegisterCommand('firedispatch', function(source, args, rawCommand)
-	local _source = source
-	local action = args[1]
-	local serverId = tonumber(args[2])
-
-	if not (action and serverId) or serverId < 1 then
-		return
-	end
-
-	if action == "scenario" then
-		if not Fire.registered[serverId] then
-			sendMessage(source, "The specified scenario hasn't been found.")
+		if not Whitelist:isWhitelisted(source, "firescript.manage") then
+			sendMessage(source, "Insufficient permissions.")
 			return
 		end
 
-		table.remove(args, 1)
-		table.remove(args, 1)
+		local registeredFireID = tonumber(args[1])
+		local flameID = tonumber(args[2])
 
-		Fire.registered[serverId].message = next(args) and table.concat(args, " ") or nil
-		Fire:saveRegistered()
-		sendMessage(source, ("Changed scenario's (#%s) dispatch message."):format(serverId))
-	else
+		if not (registeredFireID and flameID) then
+			return
+		end
+
+		local success = Fire:deleteFlame(registeredFireID, flameID)
+
+		if not success then
+			sendMessage(source, "No such fire or flame registered.")
+			return
+		end
+
+		sendMessage(source, "Removed flame #" .. flameID)
+	end,
+	false
+)
+
+RegisterCommand(
+	'removescenario',
+	function(source, args, rawCommand)
+		if not Whitelist:isWhitelisted(source, "firescript.manage") then
+			sendMessage(source, "Insufficient permissions.")
+			return
+		end
+		local registeredFireID = tonumber(args[1])
+		if not registeredFireID then
+			return
+		end
+
+		local success = Fire:deleteRegistered(registeredFireID)
+
+		if not success then
+			sendMessage(source, "No such scenario.")
+			return
+		end
+
+		sendMessage(source, "Removed scenario #" .. registeredFireID)
+	end,
+	false
+)
+
+RegisterCommand(
+	'startscenario',
+	function(source, args, rawCommand)
+		if not Whitelist:isWhitelisted(source, "firescript.start") then
+			sendMessage(source, "Insufficient permissions.")
+			return
+		end
+		local _source = source
+		local registeredFireID = tonumber(args[1])
+		local triggerDispatch = args[2] == "true"
+
+		if not registeredFireID then
+			return
+		end
+
+		local success = Fire:startRegistered(registeredFireID, triggerDispatch, source)
+
+		if not success then
+			sendMessage(source, "No such scenario.")
+			return
+		end
+
+		sendMessage(source, "Started scenario #" .. registeredFireID)
+	end,
+	false
+)
+
+RegisterCommand(
+	'stopscenario',
+	function(source, args, rawCommand)
+		if not Whitelist:isWhitelisted(source, "firescript.stop") then
+			sendMessage(source, "Insufficient permissions.")
+			return
+		end
+		local _source = source
+		local registeredFireID = tonumber(args[1])
+
+		if not registeredFireID then
+			return
+		end
+
+		local success = Fire:stopRegistered(registeredFireID)
+
+		if not success then
+			sendMessage(source, "No such scenario active.")
+			return
+		end
+
+		sendMessage(source, "Stopping scenario #" .. registeredFireID)
+
+		TriggerClientEvent("pNotify:SendNotification", source, {
+			text = "Fire going out...",
+			type = "info",
+			timeout = 5000,
+			layout = "centerRight",
+			queue = "fire"
+		})
+	end,
+	false
+)
+
+RegisterCommand(
+	'firewl',
+	function(source, args, rawCommand)
+		local _source = source
+		local action = args[1]
+		local serverId = tonumber(args[2])
+
+		if not (action and serverId) or serverId < 1 then
+			return
+		end
+
 		local identifier = GetPlayerIdentifier(serverId, 0)
 
 		if not identifier then
@@ -334,249 +316,341 @@ RegisterCommand('firedispatch', function(source, args, rawCommand)
 		end
 
 		if action == "add" then
-			Dispatch:subscribe(serverId, (not args[3] or args[3] ~= "false"))
-			sendMessage(source, ("Subscribed %s to dispatch."):format(GetPlayerName(serverId)))
+			Whitelist:addPlayer(serverId, identifier)
+			sendMessage(source, ("Added %s to the whitelist."):format(GetPlayerName(serverId)))
 		elseif action == "remove" then
-			Dispatch:unsubscribe(serverId, identifier)
-			sendMessage(source, ("Unsubscribed %s from the dispatch."):format(GetPlayerName(serverId)))
+			Whitelist:removePlayer(serverId, identifier)
+			sendMessage(source, ("Removed %s from the whitelist."):format(GetPlayerName(serverId)))
 		else
 			sendMessage(source, "Invalid action.")
 		end
-	end
-end, true)
+	end,
+	true
+)
 
-RegisterCommand('randomfires', function(source, args, rawCommand)
-	if not Whitelist:isWhitelisted(source, "firescript.manage") then
-		sendMessage(source, "Insufficient permissions.")
-		return
-	end
+RegisterCommand(
+	'firewlreload',
+	function(source, args, rawCommand)
+		Whitelist:load()
+		sendMessage(source, "Reloaded whitelist from config.")
+	end,
+	true
+)
 
-	local _source = source
-	local action = args[1]
-	local registeredFireID = tonumber(args[2])
+RegisterCommand(
+	'firewlsave',
+	function(source, args, rawCommand)
+		Whitelist:save()
+		sendMessage(source, "Saved whitelist.")
+	end,
+	true
+)
 
-	if not action then
-		return
-	end
+RegisterCommand(
+	'firedispatch',
+	function(source, args, rawCommand)
+		local _source = source
+		local action = args[1]
+		local serverId = tonumber(args[2])
 
-	if action == "add" then
-		if not registeredFireID then
-			sendMessage(source, "Invalid argument (2).")
+		if not (action and serverId) or serverId < 1 then
 			return
 		end
-		Fire:setRandom(registeredFireID, true)
-		sendMessage(source, ("Set scenario #%s to start randomly."):format(registeredFireID))
-	elseif action == "remove" then
-		
-		if not registeredFireID then
-			sendMessage(source, "Invalid argument (2).")
+
+		if action == "scenario" then
+			if not Fire.registered[serverId] then
+				sendMessage(source, "The specified scenario hasn't been found.")
+				return
+			end
+
+			table.remove(args, 1)
+			table.remove(args, 1)
+
+			Fire.registered[serverId].message = next(args) and table.concat(args, " ") or nil
+			Fire:saveRegistered()
+			sendMessage(source, ("Changed scenario's (#%s) dispatch message."):format(serverId))
+		else
+			local identifier = GetPlayerIdentifier(serverId, 0)
+
+			if not identifier then
+				sendMessage(source, "Player not online.")
+				return
+			end
+
+			if action == "add" then
+				Dispatch:subscribe(serverId, (not args[3] or args[3] ~= "false"))
+				sendMessage(source, ("Subscribed %s to dispatch."):format(GetPlayerName(serverId)))
+			elseif action == "remove" then
+				Dispatch:unsubscribe(serverId, identifier)
+				sendMessage(source, ("Unsubscribed %s from the dispatch."):format(GetPlayerName(serverId)))
+			else
+				sendMessage(source, "Invalid action.")
+			end
+		end
+	end,
+	true
+)
+
+RegisterCommand(
+	'randomfires',
+	function(source, args, rawCommand)
+		if not Whitelist:isWhitelisted(source, "firescript.manage") then
+			sendMessage(source, "Insufficient permissions.")
 			return
 		end
-		
-		Fire:setRandom(registeredFireID, false)
-		sendMessage(source, ("Set scenario #%s not to start randomly."):format(registeredFireID))
-	elseif action == "disable" then
-		Fire:stopSpawner()
-		sendMessage(source, "Disabled random fire spawn.")
-	elseif action == "enable" then
-		Fire:startSpawner()
-		sendMessage(source, "Enabled random fire spawn.")
-	else
-		sendMessage(source, "Invalid action.")
-	end
-end, false)
+
+		local _source = source
+		local action = args[1]
+		local registeredFireID = tonumber(args[2])
+
+		if not action then
+			return
+		end
+
+		if action == "add" then
+			if not registeredFireID then
+				sendMessage(source, "Invalid argument (2).")
+				return
+			end
+			Fire:setRandom(registeredFireID, true)
+			sendMessage(source, ("Set scenario #%s to start randomly."):format(registeredFireID))
+		elseif action == "remove" then
+			if not registeredFireID then
+				sendMessage(source, "Invalid argument (2).")
+				return
+			end
+			Fire:setRandom(registeredFireID, false)
+			sendMessage(source, ("Set scenario #%s not to start randomly."):format(registeredFireID))
+		elseif action == "disable" then
+			Fire:stopSpawner()
+			sendMessage(source, "Disabled random fire spawn.")
+		elseif action == "enable" then
+			Fire:startSpawner()
+			sendMessage(source, "Enabled random fire spawn.")
+		else
+			sendMessage(source, "Invalid action.")
+		end
+	end,
+	false
+)
 
 --================================--
 --           FIRE SYNC            --
 --================================--
 
 RegisterNetEvent('fireManager:requestSync')
-AddEventHandler('fireManager:requestSync', function()
-	if source > 0 then
-		TriggerClientEvent('fireClient:synchronizeFlames', source, Fire.active)
+AddEventHandler(
+	'fireManager:requestSync',
+	function()
+		if source > 0 then
+			TriggerClientEvent('fireClient:synchronizeFlames', source, Fire.active)
+		end
 	end
-end)
+)
 
 RegisterNetEvent('fireManager:createFlame')
-AddEventHandler('fireManager:createFlame',
-function(fireIndex, coords)
-	Fire:createFlame(fireIndex, coords)
-end)
+AddEventHandler(
+	'fireManager:createFlame',
+	function(fireIndex, coords)
+		Fire:createFlame(fireIndex, coords)
+	end
+)
 
 RegisterNetEvent('fireManager:createFire')
-AddEventHandler('fireManager:createFire', function()
-	Fire:create(coords, maximumSpread, spreadChance)
-end)
+AddEventHandler(
+	'fireManager:createFire',
+	function()
+		Fire:create(coords, maximumSpread, spreadChance)
+	end
+)
 
 RegisterNetEvent('fireManager:removeFire')
-AddEventHandler('fireManager:removeFire', function(fireIndex)
-	Fire:remove(fireIndex)
-end)
+AddEventHandler(
+	'fireManager:removeFire',
+	function(fireIndex)
+		Fire:remove(fireIndex)
+	end
+)
 
 RegisterNetEvent('fireManager:removeAllFires')
-AddEventHandler('fireManager:removeAllFires', function()
-	Fire:removeAll()
-end)
+AddEventHandler(
+	'fireManager:removeAllFires',
+	function()
+		Fire:removeAll()
+	end
+)
 
 RegisterNetEvent('fireManager:removeFlame')
-AddEventHandler('fireManager:removeFlame',
-function(fireIndex, flameIndex)
-	Fire:removeFlame(fireIndex, flameIndex)
-end)
+AddEventHandler(
+	'fireManager:removeFlame',
+	function(fireIndex, flameIndex)
+		Fire:removeFlame(fireIndex, flameIndex)
+	end
+)
 
 --================================--
 --           DISPATCH             --
 --================================--
 
 RegisterNetEvent('fireDispatch:registerPlayer')
-AddEventHandler('fireDispatch:registerPlayer', function(playerSource, isFirefighter)
-	source = tonumber(source)
-	playerSource = tonumber(playerSource)
-	if (source and source > 0) or not playerSource or playerSource < 0 then
-		return
-	end
+AddEventHandler(
+	'fireDispatch:registerPlayer',
+	function(playerSource, isFirefighter)
+		source = tonumber(source)
+		playerSource = tonumber(playerSource)
+		if (source and source > 0) or not playerSource or playerSource < 0 then
+			return
+		end
 
-	Dispatch:subscribe(playerSource, not (isFirefighter))
-end)
+		Dispatch:subscribe(playerSource, not (isFirefighter))
+	end
+)
 
 RegisterNetEvent('fireDispatch:removePlayer')
-AddEventHandler('fireDispatch:removePlayer', function(playerSource)
-	source = tonumber(source)
-	playerSource = tonumber(playerSource)
-	if (source and source > 0) or not playerSource or playerSource < 0 then
-		return
-	end
+AddEventHandler(
+	'fireDispatch:removePlayer',
+	function(playerSource)
+		source = tonumber(source)
+		playerSource = tonumber(playerSource)
+		if (source and source > 0) or not playerSource or playerSource < 0 then
+			return
+		end
 
-	Dispatch:subscribe(playerSource)
-end)
+		Dispatch:subscribe(playerSource)
+	end
+)
 
 RegisterNetEvent('fireDispatch:create')
-AddEventHandler('fireDispatch:create', function(text, coords)
-	if not Config.Dispatch.disableCalls and (source < 1 or Dispatch.expectingInfo[source]) then
-		Dispatch:create(text, coords)
-		if source > 0 then
-			Dispatch.expectingInfo[source] = nil
+AddEventHandler(
+	'fireDispatch:create',
+	function(text, coords)
+		if not Config.Dispatch.disableCalls and (source < 1 or Dispatch.expectingInfo[source]) then
+			Dispatch:create(text, coords)
+			if source > 0 then
+				Dispatch.expectingInfo[source] = nil
+			end
 		end
 	end
-end)
+)
 
 --================================--
 --          WHITELIST             --
 --================================--
 
 RegisterNetEvent('fireManager:checkWhitelist')
-AddEventHandler('fireManager:checkWhitelist', function(serverId)
-	if serverId then
-		source = tonumber(serverId) or source
-	end
+AddEventHandler(
+	'fireManager:checkWhitelist',
+	function(serverId)
+		if serverId then
+			source = tonumber(serverId) or source
+		end
 
-	Whitelist:check(source)
-end)
+		Whitelist:check(source)
+	end
+)
 
 --================================--
 --         AUTO-SUBSCRIBE         --
 --================================--
 
 local QBCore, ESX
-if Config.Dispatch.Framework == "esx" then
+if Config.Framework == "esx" then
     TriggerEvent("esx:getSharedObject", function(object)
         ESX = object
     end)
-elseif Config.Dispatch.Framework == "qb" then
+elseif Config.Framework == "qb" then
     QBCore = exports["qb-core"]:GetCoreObject()
 end
 
---if Config.Dispatch.Framework == "esx" or Config.Dispatch.Framework == "qb" then
-    if Config.Dispatch.enabled then
-        if Config.Dispatch.Framework == "esx" then
-            local allowedJobs = {}
-			local firefighterJobs = Config.Fire.spawner.firefighterJobs or {}
+if Config.Dispatch.enabled then
+    if Config.Dispatch.Framework == "esx" then
+        local allowedJobs = {}
+		local firefighterJobs = Config.Fire.spawner.firefighterJobs or {}
 
-			if type(Config.Dispatch.JobName) == "table" then
-				for k, v in pairs(Config.Dispatch.JobName) do
-					allowedJobs[v] = true
-				end
+		if type(Config.Dispatch.JobName) == "table" then
+			for k, v in pairs(Config.Dispatch.JobName) do
+				allowedJobs[v] = true
+			end
+		else
+			allowedJobs[Config.Dispatch.JobName] = true
+			firefighterJobs[Config.Dispatch.JobName] = true
+		end
+
+		RegisterNetEvent("esx:setJob")
+		AddEventHandler("esx:setJob", function(source)
+			local xPlayer = ESX.GetPlayerFromId(source)
+			
+			if allowedJobs[xPlayer.job.name] then
+				Dispatch:subscribe(source, firefighterJobs[xPlayer.job.name])
 			else
-				allowedJobs[Config.Dispatch.JobName] = true
+				Dispatch:unsubscribe(source)
+			end
+		end)
+    
+		RegisterNetEvent("esx:playerLoaded")
+		AddEventHandler("esx:playerLoaded", function(source, xPlayer)
+			if allowedJobs[xPlayer.job.name] then
+				Dispatch:subscribe(source, firefighterJobs[xPlayer.job.name])
+			else
+				Dispatch:unsubscribe(source)
+			end
+		end)
+    elseif Config.Dispatch.Framework == "qb" then
+		
+		local firefighterJobs = Config.Fire.spawner.firefighterJobs or {}
+		
+		if type(Config.Dispatch.JobName) == "table" then
+			for k, v in pairs(Config.Dispatch.JobName) do
 				firefighterJobs[Config.Dispatch.JobName] = true
 			end
-
-			RegisterNetEvent("esx:setJob")
-			AddEventHandler("esx:setJob", function(source)
-				local xPlayer = ESX.GetPlayerFromId(source)
+		end
 			
-				if allowedJobs[xPlayer.job.name] then
-					Dispatch:subscribe(source, firefighterJobs[xPlayer.job.name])
-				else
-					Dispatch:unsubscribe(source)
-				end
-			end)
-    
-			RegisterNetEvent("esx:playerLoaded")
-			AddEventHandler("esx:playerLoaded", function(source, xPlayer)
-				if allowedJobs[xPlayer.job.name] then
-					Dispatch:subscribe(source, firefighterJobs[xPlayer.job.name])
-				else
-					Dispatch:unsubscribe(source)
-				end
-			end)
-        elseif Config.Dispatch.Framework == "qb" then
+		RegisterServerEvent('fire:server:Adddispatch')
+		AddEventHandler('fire:server:Adddispatch', function(source)
+			local src = source
 		
-			local firefighterJobs = Config.Fire.spawner.firefighterJobs or {}
-		
-			if type(Config.Dispatch.JobName) == "table" then
-				for k, v in pairs(Config.Dispatch.JobName) do
-				   firefighterJobs[Config.Dispatch.JobName] = true
+			for k, v in pairs(QBCore.Functions.GetPlayers()) do
+				local Player = QBCore.Functions.GetPlayer(v)
+				if Player ~= nil then 
+					if (Config.Dispatch.JobName and Player.PlayerData.job.onduty) then
+						Dispatch:subscribe(v, firefighterJobs)
+						TriggerClientEvent('QBCore:Notify', v, Lang:t("fire_call"), 'success')
+					end
 				end
 			end
-			
-			RegisterServerEvent('fire:server:Adddispatch')
-			AddEventHandler('fire:server:Adddispatch', function(source)
-				local src = source
-		
-				for k, v in pairs(QBCore.Functions.GetPlayers()) do
-					local Player = QBCore.Functions.GetPlayer(v)
-					if Player ~= nil then 
-						if (Config.Dispatch.JobName and Player.PlayerData.job.onduty) then
-							Dispatch:subscribe(v, firefighterJobs)
-							TriggerClientEvent('QBCore:Notify', v, Lang:t("fire_call"), 'success')
-						end
-					end
-				end
-			end)
+		end)
 
-			RegisterServerEvent('fire:server:Removedispatch')
-			AddEventHandler('fire:server:Removedispatch', function(source)
-				local src = source
+		RegisterServerEvent('fire:server:Removedispatch')
+		AddEventHandler('fire:server:Removedispatch', function(source)
+			local src = source
 		
-				for k, v in pairs(QBCore.Functions.GetPlayers()) do
-					local Player = QBCore.Functions.GetPlayer(v)
-					if Player ~= nil then 
-						if (Config.Dispatch.JobName and Player.PlayerData.job.onduty) then
-							Dispatch:unsubscribe(v)
-							TriggerClientEvent('QBCore:Notify', v, Lang:t("fire_deactivated"), 'error')
-						end
+			for k, v in pairs(QBCore.Functions.GetPlayers()) do
+				local Player = QBCore.Functions.GetPlayer(v)
+				if Player ~= nil then 
+					if (Config.Dispatch.JobName and Player.PlayerData.job.onduty) then
+						Dispatch:unsubscribe(v)
+						TriggerClientEvent('QBCore:Notify', v, Lang:t("fire_deactivated"), 'error')
 					end
 				end
-			end)
+			end
+		end)
 
-			RegisterServerEvent('fire:ToggleDuty')
-			AddEventHandler('fire:ToggleDuty', function(source)
-				local src = source
+		RegisterServerEvent('fire:ToggleDuty')
+		AddEventHandler('fire:ToggleDuty', function(source)
+			local src = source
 		
-				for k, v in pairs(QBCore.Functions.GetPlayers()) do
-					local Player = QBCore.Functions.GetPlayer(v)
-					if Player ~= nil then 
-						if (Config.Dispatch.JobName and Player.PlayerData.job.onduty) then
-							Dispatch:subscribe(v, firefighterJobs)
-								TriggerClientEvent('QBCore:Notify', v, Lang:t("fire_call"), 'success')
-							elseif (Config.Dispatch.JobName) then
-							Dispatch:unsubscribe(v)
-							TriggerClientEvent('QBCore:Notify', v, Lang:t("fire_deactivated"), 'error')
-						end
+			for k, v in pairs(QBCore.Functions.GetPlayers()) do
+				local Player = QBCore.Functions.GetPlayer(v)
+				if Player ~= nil then 
+					if (Config.Dispatch.JobName and Player.PlayerData.job.onduty) then
+						Dispatch:subscribe(v, firefighterJobs)
+						TriggerClientEvent('QBCore:Notify', v, Lang:t("fire_call"), 'success')
+					elseif (Config.Dispatch.JobName) then
+						Dispatch:unsubscribe(v)
+						TriggerClientEvent('QBCore:Notify', v, Lang:t("fire_deactivated"), 'error')
 					end
 				end
-			end)
-        end
+			end
+		end)
     end
---end
+end

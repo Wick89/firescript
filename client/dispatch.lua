@@ -1,11 +1,8 @@
 --================================--
---      FIRE SCRIPT v1.7.7        --
+--       FIRE SCRIPT v1.6.3       --
 --  by GIMI (+ foregz, Albo1125)  --
---  make some function by Wick	  --
 --      License: GNU GPL 3.0      --
 --================================--
--- For Tones sound test it in config
--- Tones = {"fire", "medical"}
 
 Dispatch = {
 	lastCall = nil,
@@ -50,22 +47,15 @@ function Dispatch:create(dispatchNumber, coords)
 
     self:renderRoute(coords)
     
-    if Config.Dispatch.enabled == true then
-		if Config.Dispatch.playSound == "chat" or Config.Dispatch.playSound == "inferno" then
-			if Config.Dispatch.playSound == "chat" then
-				Citizen.CreateThread(
-					function()
-						for i = 1, 3 do
-							PlaySoundFromEntity(-1, "IDLE_BEEP", GetPlayerPed(-1), "EPSILONISM_04_SOUNDSET", 0)
-							Citizen.Wait(300)
-						end
-					end
-				)
-			elseif Config.Dispatch.playSound == "inferno" then
-				-- PagePagers
-				exports["inferno-fire-ems-pager"]:PagePagers(Tones)
-			end		
-		end
+    if Config.Dispatch.playSound then
+        Citizen.CreateThread(
+            function()
+                for i = 1, 3 do
+                    PlaySoundFromEntity(-1, "IDLE_BEEP", GetPlayerPed(-1), "EPSILONISM_04_SOUNDSET", 0)
+                    Citizen.Wait(300)
+                end
+            end
+        )
     end
 
 	FlashMinimapDisplay()
